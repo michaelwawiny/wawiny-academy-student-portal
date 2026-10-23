@@ -1,331 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wawiny Academy - Student Portal</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-  </style>
-</head>
-<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-300">
+<script>
+    const API_URL = "http://localhost:3000/api/portal";
 
-  <!-- Top Navigation -->
-  <header class="sticky top-0 z-50 bg-indigo-900 text-white shadow-lg">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-      <div class="flex items-center space-x-3">
-        <div class="bg-indigo-600 p-2 rounded-lg font-bold text-xl tracking-wider">WA</div>
-        <div>
-          <h1 class="font-bold text-lg leading-tight">Wawiny Academy</h1>
-          <p class="text-xs text-indigo-200" id="portalRoleSubtitle">Student Enterprise Portal</p>
-        </div>
-      </div>
+    let state = {
+      courses: [],
+      ledger: [],
+      paid: 38250,
+      beds: []
+    };
 
-      <div class="flex items-center space-x-3">
-        <!-- Role Switcher -->
-        <button onclick="toggleAdminMode()" id="roleToggleBtn" class="px-3 py-1.5 bg-indigo-800 hover:bg-indigo-700 text-xs font-semibold rounded-lg transition border border-indigo-700">
-          <i class="fas fa-user-shield mr-1"></i> Switch to Admin
-        </button>
-
-        <button id="themeToggle" class="p-2 rounded-full hover:bg-indigo-800 transition">
-          <i class="fas fa-moon" id="themeIcon"></i>
-        </button>
-
-        <div class="flex items-center space-x-3 border-l border-indigo-800 pl-4">
-          <div class="text-right hidden sm:block">
-            <p class="text-sm font-semibold" id="studentNameNav">Michael Onyango</p>
-            <p class="text-xs text-indigo-300">WA/BSC/001/2026</p>
-          </div>
-          <div class="h-9 w-9 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-sm shadow">
-            MO
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Body Layout -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-6">
-    
-    <!-- Sidebar Nav -->
-    <aside class="w-full md:w-64 space-y-2">
-      <nav class="bg-white dark:bg-slate-800 rounded-2xl p-3 shadow-sm border border-slate-200 dark:border-slate-700 space-y-1">
-        <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition bg-indigo-600 text-white" id="btn-dashboard">
-          <i class="fas fa-chart-line w-5"></i>
-          <span>Dashboard</span>
-        </button>
-        <button onclick="switchTab('courses')" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" id="btn-courses">
-          <i class="fas fa-book-open w-5"></i>
-          <span>Unit Registration</span>
-        </button>
-        <button onclick="switchTab('finance')" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" id="btn-finance">
-          <i class="fas fa-wallet w-5"></i>
-          <span>Finance & M-Pesa</span>
-        </button>
-        <button onclick="switchTab('timetable')" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" id="btn-timetable">
-          <i class="fas fa-calendar-alt w-5"></i>
-          <span>Class Timetable</span>
-        </button>
-        <button onclick="switchTab('academics')" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" id="btn-academics">
-          <i class="fas fa-graduation-cap w-5"></i>
-          <span>Transcripts & GPA</span>
-        </button>
-        <button onclick="switchTab('hostel')" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" id="btn-hostel">
-          <i class="fas fa-building w-5"></i>
-          <span>Hostel Booking</span>
-        </button>
-        <button onclick="switchTab('examcard')" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" id="btn-examcard">
-          <i class="fas fa-id-card w-5"></i>
-          <span>Exam Permit</span>
-        </button>
-      </nav>
-    </aside>
-
-    <!-- Content Area -->
-    <main class="flex-1 space-y-6">
-
-      <!-- TAB 1: DASHBOARD -->
-      <section id="tab-dashboard" class="tab-content space-y-6">
-        <div class="bg-gradient-to-r from-indigo-700 to-indigo-900 rounded-2xl p-6 text-white shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h2 class="text-2xl font-bold">Welcome Back, Michael!</h2>
-            <p class="text-indigo-200 text-sm mt-1">BSc. Mathematics & Data Structures — Semester 1 (2026/2027)</p>
-          </div>
-          <span class="px-4 py-2 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-semibold backdrop-blur-md">
-            <i class="fas fa-check-circle mr-1"></i> Active Session
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <p class="text-xs text-slate-500 font-medium">Cumulative GPA</p>
-            <p class="text-2xl font-bold mt-2 text-indigo-600">3.82 / 4.0</p>
-            <span class="text-xs text-emerald-500 font-semibold mt-1 inline-block">First Class Honors</span>
-          </div>
-
-          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <p class="text-xs text-slate-500 font-medium">Fee Clearance</p>
-            <p class="text-2xl font-bold mt-2" id="dashFeePercent">85%</p>
-            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mt-2">
-              <div class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" id="dashFeeBar" style="width: 85%"></div>
-            </div>
-          </div>
-
-          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <p class="text-xs text-slate-500 font-medium">Registered Units</p>
-            <p class="text-2xl font-bold mt-2 text-indigo-600" id="dashRegisteredCount">6 Units</p>
-            <p class="text-xs text-slate-400 mt-1">Saved to LocalStorage</p>
-          </div>
-
-          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <p class="text-xs text-slate-500 font-medium">Hostel Status</p>
-            <p class="text-2xl font-bold mt-2" id="dashHostel">Block A - 204B</p>
-            <span class="text-xs text-emerald-500 font-semibold mt-1 inline-block">Allocated</span>
-          </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-          <h3 class="font-bold text-lg mb-4">Academic Progression Trajectory</h3>
-          <div class="h-64">
-            <canvas id="gpaChart"></canvas>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 2: COURSE REGISTRATION -->
-      <section id="tab-courses" class="tab-content hidden space-y-6">
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-          <div class="flex justify-between items-center mb-6">
-            <div>
-              <h2 class="text-xl font-bold">Semester 1 Unit Registration</h2>
-              <p class="text-sm text-slate-500">Selections persist automatically across browser sessions.</p>
-            </div>
-            <span class="text-sm font-semibold px-3 py-1 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 rounded-lg" id="totalCredits">Selected: 18 / 24 Credits</span>
-          </div>
-          <div class="space-y-3" id="courseList"></div>
-          <div class="mt-6 flex justify-end">
-            <button onclick="confirmCourseRegistration()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-lg">
-              Save & Submit Units
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 3: FINANCE & M-PESA -->
-      <section id="tab-finance" class="tab-content hidden space-y-6">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-            <div class="flex items-center space-x-3 text-emerald-600 font-bold text-lg">
-              <i class="fas fa-mobile-alt text-2xl"></i>
-              <span>M-Pesa STK Push</span>
-            </div>
-            <p class="text-xs text-slate-500">Paybill: <b>522522</b> | Account: <b>WA-001-2026</b></p>
-            <form onsubmit="handleMpesaPay(event)" class="space-y-4">
-              <div>
-                <label class="block text-xs font-semibold mb-1">Phone Number</label>
-                <input type="tel" id="mpesaPhone" value="0712345678" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm" required>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold mb-1">Amount (KES)</label>
-                <input type="number" id="mpesaAmount" value="5000" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-sm" required>
-              </div>
-              <button type="submit" id="stkBtn" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-lg">
-                Trigger STK Push
-              </button>
-            </form>
-          </div>
-
-          <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-            <h3 class="font-bold text-lg">Fee Ledger Statement</h3>
-            <div class="grid grid-cols-3 gap-4 text-center p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl">
-              <div>
-                <p class="text-xs text-slate-400">Total Invoiced</p>
-                <p class="text-lg font-bold">KES 45,000</p>
-              </div>
-              <div>
-                <p class="text-xs text-slate-400">Total Paid</p>
-                <p class="text-lg font-bold text-emerald-500" id="totalPaidText">KES 38,250</p>
-              </div>
-              <div>
-                <p class="text-xs text-slate-400">Balance</p>
-                <p class="text-lg font-bold text-indigo-500" id="balanceText">KES 6,750</p>
-              </div>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-xs text-left">
-                <thead class="bg-slate-100 dark:bg-slate-700 font-semibold">
-                  <tr>
-                    <th class="p-3">Date</th>
-                    <th class="p-3">Ref No.</th>
-                    <th class="p-3">Description</th>
-                    <th class="p-3 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody id="ledgerTable" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 4: TIMETABLE -->
-      <section id="tab-timetable" class="tab-content hidden space-y-6">
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-          <h2 class="text-xl font-bold">Weekly Class Schedule</h2>
-          <p class="text-sm text-slate-500">Live lecture schedules for your registered units.</p>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-              <thead class="bg-indigo-50 dark:bg-slate-700 font-semibold">
-                <tr>
-                  <th class="p-3">Day</th>
-                  <th class="p-3">Time</th>
-                  <th class="p-3">Unit Code & Title</th>
-                  <th class="p-3">Venue</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 dark:divide-slate-700 text-xs sm:text-sm">
-                <tr>
-                  <td class="p-3 font-semibold text-indigo-600">Monday</td>
-                  <td class="p-3">08:00 AM - 10:00 AM</td>
-                  <td class="p-3">SMA 2101: Calculus I</td>
-                  <td class="p-3">Lab 3</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-semibold text-indigo-600">Tuesday</td>
-                  <td class="p-3">10:00 AM - 01:00 PM</td>
-                  <td class="p-3">ICS 2104: Data Structures & Algorithms</td>
-                  <td class="p-3">Computer Lab A</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-semibold text-indigo-600">Wednesday</td>
-                  <td class="p-3">02:00 PM - 05:00 PM</td>
-                  <td class="p-3">STA 2201: Probability & Statistics</td>
-                  <td class="p-3">Hall 2</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-semibold text-indigo-600">Thursday</td>
-                  <td class="p-3">09:00 AM - 11:00 AM</td>
-                  <td class="p-3">BIT 2102: Database Systems</td>
-                  <td class="p-3">Lab 1</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 5: ACADEMICS -->
-      <section id="tab-academics" class="tab-content hidden space-y-6">
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-          <h2 class="text-xl font-bold mb-4">Official Semester Transcript</h2>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-              <thead class="bg-indigo-50 dark:bg-slate-700 font-semibold">
-                <tr>
-                  <th class="p-3">Unit Code</th>
-                  <th class="p-3">Unit Title</th>
-                  <th class="p-3">Grade</th>
-                  <th class="p-3">Score</th>
-                  <th class="p-3">Status</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                <tr><td class="p-3 font-semibold">SMA 2101</td><td class="p-3">Calculus I</td><td class="p-3 font-bold text-emerald-500">A</td><td class="p-3">84%</td><td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs font-semibold">PASS</span></td></tr>
-                <tr><td class="p-3 font-semibold">ICS 2104</td><td class="p-3">Data Structures & Algorithms</td><td class="p-3 font-bold text-emerald-500">A</td><td class="p-3">88%</td><td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs font-semibold">PASS</span></td></tr>
-                <tr><td class="p-3 font-semibold">STA 2201</td><td class="p-3">Probability & Statistics</td><td class="p-3 font-bold text-indigo-500">B</td><td class="p-3">72%</td><td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs font-semibold">PASS</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 6: HOSTEL -->
-      <section id="tab-hostel" class="tab-content hidden space-y-6">
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-          <h2 class="text-xl font-bold">Interactive Accommodation Selector</h2>
-          <p class="text-sm text-slate-500">Your selection is saved automatically in your browser.</p>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4" id="bedGrid"></div>
-        </div>
-      </section>
-
-      <!-- TAB 7: EXAM PERMIT -->
-      <section id="tab-examcard" class="tab-content hidden space-y-6">
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm max-w-2xl mx-auto space-y-6 text-center">
-          <div class="border-b pb-4 dark:border-slate-700">
-            <h2 class="text-2xl font-bold text-indigo-900 dark:text-indigo-300">WAWINY ACADEMY</h2>
-            <p class="text-xs uppercase tracking-widest text-slate-400">Official Examination Clearance Pass</p>
-          </div>
-          <div class="flex justify-between items-center text-left text-xs">
-            <div>
-              <p><b>Student Name:</b> Michael Onyango</p>
-              <p><b>Registration No:</b> WA/BSC/001/2026</p>
-              <p><b>Programme:</b> BSc. Data Structures</p>
-            </div>
-            <div>
-              <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full font-bold">CLEARED</span>
-            </div>
-          </div>
-          <div class="py-6 border-y border-dashed border-slate-300 dark:border-slate-700">
-            <p class="text-xs text-slate-400 mb-2">SECURE VALIDATION BARCODE</p>
-            <div class="tracking-widest font-mono text-3xl font-extrabold bg-slate-100 dark:bg-slate-700 p-3 rounded-lg inline-block">
-              ||| | |||| | ||||| ||| ||
-            </div>
-          </div>
-          <button onclick="window.print()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-md transition">
-            <i class="fas fa-print mr-2"></i> Print Examination Permit
-          </button>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- Script with LocalStorage Persistence -->
-  <script>
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -342,7 +24,6 @@
       document.documentElement.classList.toggle('dark');
     });
 
-    // Admin Mode Simulation
     let isAdmin = false;
     function toggleAdminMode() {
       isAdmin = !isAdmin;
@@ -352,32 +33,54 @@
         btn.innerHTML = '<i class="fas fa-user-graduate mr-1"></i> Switch to Student';
         btn.className = "px-3 py-1.5 bg-emerald-700 text-xs font-semibold rounded-lg transition border border-emerald-600 text-white";
         subtitle.innerText = "Administrator Control Panel";
-        alert("Switched to Administrator View. Full database access unlocked.");
       } else {
         btn.innerHTML = '<i class="fas fa-user-shield mr-1"></i> Switch to Admin';
         btn.className = "px-3 py-1.5 bg-indigo-800 hover:bg-indigo-700 text-xs font-semibold rounded-lg transition border border-indigo-700 text-white";
         subtitle.innerText = "Student Enterprise Portal";
-        alert("Switched back to Student View.");
       }
     }
 
-    // Persistent Courses via LocalStorage
-    let courses = JSON.parse(localStorage.getItem('wawiny_courses')) || [
-      { code: 'SMA 2101', title: 'Calculus I', credits: 3, selected: true },
-      { code: 'ICS 2104', title: 'Data Structures & Algorithms', credits: 4, selected: true },
-      { code: 'STA 2201', title: 'Probability & Statistics', credits: 3, selected: true },
-      { code: 'BIT 2102', title: 'Database Systems', credits: 4, selected: true },
-      { code: 'SMA 2103', title: 'Linear Algebra', credits: 4, selected: true },
-      { code: 'ICS 2105', title: 'Software Engineering', credits: 3, selected: false }
-    ];
+    // Load Data from Node.js Backend Server
+    async function loadFromServer() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        state.courses = data.courses;
+        state.ledger = data.ledger;
+        state.paid = data.paid;
+        state.beds = data.beds;
+
+        renderCourses();
+        renderLedger();
+        renderBeds();
+      } catch (err) {
+        console.error("Could not connect to Node backend server:", err);
+      }
+    }
+
+    // Save Data to Node.js Backend Server
+    async function saveToServer() {
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(state)
+        });
+        const result = await res.json();
+        if(result.success) {
+          alert("Successfully saved data to your local Node.js server database.json!");
+        }
+      } catch (err) {
+        alert("Error saving data to Node server.");
+      }
+    }
 
     function renderCourses() {
       const list = document.getElementById('courseList');
       list.innerHTML = '';
-      let credits = 0;
-      let count = 0;
+      let credits = 0, count = 0;
 
-      courses.forEach((c, idx) => {
+      state.courses.forEach((c, idx) => {
         if(c.selected) { credits += c.credits; count++; }
         list.innerHTML += `
           <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -392,30 +95,17 @@
 
       document.getElementById('totalCredits').innerText = `Selected: ${credits} / 24 Credits`;
       document.getElementById('dashRegisteredCount').innerText = `${count} Units`;
-      localStorage.setItem('wawiny_courses', JSON.stringify(courses));
     }
 
     function toggleCourse(index) {
-      courses[index].selected = !courses[index].selected;
+      state.courses[index].selected = !state.courses[index].selected;
       renderCourses();
     }
-
-    function confirmCourseRegistration() {
-      alert('Unit selections successfully saved to browser LocalStorage and synced!');
-    }
-
-    // Persistent Finance Ledger & M-Pesa
-    let ledger = JSON.parse(localStorage.getItem('wawiny_ledger')) || [
-      { date: '15 Oct 2026', ref: 'INV-2026-01', desc: 'Semester Tuition Fee', amount: 'KES 45,000', type: 'invoiced' },
-      { date: '18 Oct 2026', ref: 'QK789210AB', desc: 'M-Pesa Deposit', amount: '- KES 38,250', type: 'paid' }
-    ];
-    let currentPaid = parseInt(localStorage.getItem('wawiny_paid')) || 38250;
-    const totalFee = 45000;
 
     function renderLedger() {
       const tbody = document.getElementById('ledgerTable');
       tbody.innerHTML = '';
-      ledger.forEach(item => {
+      state.ledger.forEach(item => {
         const color = item.type === 'paid' ? 'text-emerald-500 font-semibold' : 'font-semibold';
         tbody.innerHTML += `
           <tr>
@@ -426,27 +116,26 @@
           </tr>
         `;
       });
-      const balance = totalFee - currentPaid;
-      const percent = Math.min(100, Math.round((currentPaid / totalFee) * 100));
-      document.getElementById('totalPaidText').innerText = `KES ${currentPaid.toLocaleString()}`;
+      const totalFee = 45000;
+      const balance = totalFee - state.paid;
+      const percent = Math.min(100, Math.round((state.paid / totalFee) * 100));
+
+      document.getElementById('totalPaidText').innerText = `KES ${state.paid.toLocaleString()}`;
       document.getElementById('balanceText').innerText = `KES ${Math.max(0, balance).toLocaleString()}`;
       document.getElementById('dashFeePercent').innerText = `${percent}%`;
       document.getElementById('dashFeeBar').style.width = `${percent}%`;
-
-      localStorage.setItem('wawiny_paid', currentPaid);
-      localStorage.setItem('wawiny_ledger', JSON.stringify(ledger));
     }
 
-    function handleMpesaPay(e) {
+    async function handleMpesaPay(e) {
       e.preventDefault();
       const btn = document.getElementById('stkBtn');
       const amount = parseInt(document.getElementById('mpesaAmount').value);
       btn.innerText = "Sending STK Push...";
       btn.disabled = true;
 
-      setTimeout(() => {
-        currentPaid += amount;
-        ledger.push({
+      setTimeout(async () => {
+        state.paid += amount;
+        state.ledger.push({
           date: 'Today',
           ref: 'MPESA' + Math.floor(Math.random()*900000 + 100000),
           desc: 'M-Pesa Deposit',
@@ -454,24 +143,16 @@
           type: 'paid'
         });
         renderLedger();
+        await saveToServer();
         btn.innerText = "Trigger STK Push";
         btn.disabled = false;
-        alert(`STK Push confirmed! KES ${amount} added to your account ledger.`);
       }, 1500);
     }
-
-    // Persistent Hostel Beds
-    let beds = JSON.parse(localStorage.getItem('wawiny_beds')) || [
-      { id: '204A', status: 'Occupied' },
-      { id: '204B', status: 'Selected' },
-      { id: '204C', status: 'Available' },
-      { id: '204D', status: 'Available' }
-    ];
 
     function renderBeds() {
       const grid = document.getElementById('bedGrid');
       grid.innerHTML = '';
-      beds.forEach((b, idx) => {
+      state.beds.forEach((b, idx) => {
         let color = b.status === 'Occupied' ? 'bg-rose-100 text-rose-600 border-rose-300' :
                     b.status === 'Selected' ? 'bg-emerald-100 text-emerald-700 border-emerald-400' :
                     'bg-slate-100 text-slate-700 border-slate-300 hover:border-indigo-500 cursor-pointer';
@@ -486,20 +167,18 @@
           document.getElementById('dashHostel').innerText = `Block A - ${b.id}`;
         }
       });
-      localStorage.setItem('wawiny_beds', JSON.stringify(beds));
     }
 
-    function selectBed(index) {
-      if(beds[index].status === 'Occupied') return;
-      beds.forEach(b => { if(b.status === 'Selected') b.status = 'Available'; });
-      beds[index].status = 'Selected';
+    async function selectBed(index) {
+      if(state.beds[index].status === 'Occupied') return;
+      state.beds.forEach(b => { if(b.status === 'Selected') b.status = 'Available'; });
+      state.beds[index].status = 'Selected';
       renderBeds();
+      await saveToServer();
     }
 
     window.onload = () => {
-      renderCourses();
-      renderLedger();
-      renderBeds();
+      loadFromServer();
 
       const ctx = document.getElementById('gpaChart').getContext('2d');
       new Chart(ctx, {
@@ -523,5 +202,3 @@
       });
     };
   </script>
-</body>
-</html>
